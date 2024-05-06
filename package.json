@@ -4,12 +4,15 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-      "dev": "browser-sync start --server --files \"**/*.html\" \"**/*.js\"",
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "dev": "browser-sync start --server --files \"**/*.html\" \"**/*.js\"",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "phaser": "^3.80.1"
+        "phaser": "^3.80.1"
+    },
+    "devDependencies": {
+        "browser-sync": "^3.0.2"
     }
-  }
+}
