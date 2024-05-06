@@ -1,0 +1,15 @@
+{
+    "name": "serpentine",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "dev": "browser-sync start --server --files \"**/*.html\" \"**/*.js\"",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "phaser": "^3.80.1"
+    }
+  }
