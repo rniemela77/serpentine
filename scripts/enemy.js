@@ -53,12 +53,8 @@ export default class Enemy {
 
                 if (towardPlayer) {
                     // player moves in direction of player plus player's velocity
-                    bullet.x += (this.player.x - bullet.x) * 0.02 + 0.5;
+                    bullet.x += (this.player.sprite().x - bullet.x) * 0.02 + 0.5;
                     bullet.y += bullet.speed;
-
-
-
-
                 }
             });
         });

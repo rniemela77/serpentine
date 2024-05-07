@@ -6,7 +6,7 @@ export default class Movement {
 
         // on update
         this.scene.events.on('update', () => {
-            const player = this.player;
+            const player = this.player.sprite();
             const cursors = this.input.keyboard.createCursorKeys();
 
             const maxSpeed = 500; // Maximum speed the player can move
