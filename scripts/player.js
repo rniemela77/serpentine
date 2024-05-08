@@ -41,6 +41,47 @@ export default class Player {
         return this.player;
     }
 
+    startShooting() {
+        const playerBulletSize = 10;
+        this.playerBullets = this.scene.physics.add.group();
+        // every 100ms create a bullet
+        this.scene.time.addEvent({
+            delay: 100,
+            callback: () => {
+                const bullet = this.scene.add.ellipse(this.player.x, this.player.y, playerBulletSize, playerBulletSize, 0xcc99ff);
+                this.physics.add.existing(bullet);
+                bullet.body.setCircle(playerBulletSize, 0, 0);
+                bullet.setDepth(1);
+                bullet.speed = -2;
+                bullet.angle = this.player.angle;
+                
+                this.playerBullets.add(bullet);
+            },
+            loop: true
+        });
+
+        // on update
+        this.scene.events.on('update', () => {
+            this.playerBullets.getChildren().forEach(bullet => {
+                bullet.y += bullet.speed;
+                // types of firing patterns
+                // can fire from behind angle
+                //   bullet.x += this.player.body.velocity.x / 50 * bullet.speed;
+                // can fire directly up current position
+                //   bullet.x += this.player.body.velocity.x / 50;
+                // can fire in chaotic pattern
+                //    bullet.x += this.player.body.velocity.x / 50 + Math.sin(bullet.angle) * 2;
+                
+                // fire in direction facing, early
+                bullet.x += this.player.body.velocity.x / 50 * bullet.y / 500;
+
+                if (bullet.y < 0) {
+                    bullet.destroy();
+                }
+            });
+        });
+    }
+
     generateHeat() {
         // heat hitbox is a 50x30 square centered on the player
         const hitbox = this.physics.add.sprite(this.width / 2, this.height * 0.8, 'player');

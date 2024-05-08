@@ -17,10 +17,11 @@ export default class Bullets {
                 bullet.x += speed * Math.cos(direction);
                 bullet.y += speed * Math.sin(direction);
                 bullet.rotation = direction + Math.PI / 2;
-                // bullet.y += bullet.speed;
-                // if (bullet.y > this.height) {
-                //     bullet.y = 0;
-                // }
+                
+                // if bullet goes off screen
+                if (bullet.y > this.height || bullet.y < 0 || bullet.x > this.width || bullet.x < 0) {
+                    bullet.destroy();
+                }
             });
         });
     }
@@ -287,12 +288,14 @@ export default class Bullets {
         color = 0xffffff,
         strokeColor = 0xff0000
     ) {
-        size = 15 * size;
-        const bullet = this.scene.add.ellipse(pos.x, pos.y, size, size * 2, color);
+        size = 20 * size;
+        const oval = false;
+        const vertSize = oval ? size * 2 : size;
+        const bullet = this.scene.add.ellipse(pos.x, pos.y, size, vertSize, color);
+        const hitboxSize = size / 2;
         this.physics.add.existing(bullet);
-        bullet.body.setCircle(10, 0, 0);
-        bullet.setStrokeStyle(3, strokeColor);
-        bullet.body.setOffset(0, 0);
+        bullet.body.setCircle(hitboxSize, -hitboxSize / 2, -hitboxSize / 2);
+        bullet.setStrokeStyle(2, strokeColor);
         bullet.direction = direction;
         this.enemyBullets.add(bullet);
 

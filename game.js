@@ -55,8 +55,12 @@ class Demo extends Phaser.Scene {
         // this.bullets.rotatingRing(rightCenter, 0.5, 3, 2, -1);
 
         // stream toward player
-        this.streams();
-        // this.attackStreams();
+        // this.streams();
+        this.attackStreams();
+
+        // this.enemy.createEnemy();
+        this.player.startShooting();
+        this.enemy.createEnemies();
 
 
 
@@ -104,10 +108,10 @@ class Demo extends Phaser.Scene {
     streams() {
         const center = { x: this.width / 2, y: this.height / 2 };
         this.time.addEvent({
-            delay: 2000,
+            delay: 500,
             callback: () => {
                 const playerPos = { x: this.player.sprite().x, y: this.player.sprite().y };
-                this.bullets.streamTowardPosition(center, playerPos);
+                this.bullets.streamTowardPosition(center, playerPos, 1.5, 20)
             },
             loop: true,
         });
@@ -141,7 +145,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            // debug: true,
+            debug: true,
         },
     },
     scene: Demo,
