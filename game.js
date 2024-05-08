@@ -18,14 +18,15 @@ class Demo extends Phaser.Scene {
         this.width = window.innerWidth * window.devicePixelRatio;
         this.height = window.innerHeight * window.devicePixelRatio;
 
+        this.start();
+    }
 
+    start() {
         this.bg = new Background(this);
         this.player = new Player(this);
         this.bullets = new Bullets(this);
         this.enemy = new Enemy(this);
         this.ui = new UI(this);
-
-
 
         // Camera
         this.cameras.main.startFollow(this.player.sprite(), true, 0.05, 0, 0, 200);
@@ -44,85 +45,20 @@ class Demo extends Phaser.Scene {
         // this.bullets.createPatternA();
         // this.bullets.createPatternB();
         // this.bullets.ringExpand();
-
-        // every 500ms create a ring
+        this.bullets.pattern1();
+        
+        
+        // this.bullets.leftAndRightSpiral();
+        // this.bullets.streams();
+        // this.bullets.attackStreams()
         // this.bullets.createSpiral();
-
-        // left and right rings
-        // const leftCenter = { x: this.width / 3, y: this.height / 2 };
-        // const rightCenter = { x: this.width * 2 / 3, y: this.height / 2 };
-        // this.bullets.rotatingRing(leftCenter, 0.5, 3, 2, 1);
-        // this.bullets.rotatingRing(rightCenter, 0.5, 3, 2, -1);
-
-        // stream toward player
-        // this.streams();
-        this.attackStreams();
-
         // this.enemy.createEnemy();
         this.player.startShooting();
         this.enemy.createEnemies();
 
-
-
-
-
-        // this.time.addEvent({
-        //     delay: 800,
-        //     callback: () => {
-        //         this.bullets.createRow(100, 3, 6);
-        //     },
-        // });
-
-        // this.bullets.createLine({ x: 0, y: 0 }, { x: this.width, y: this.height });
-
-    }
-
-    attackStreams() {
-
-        // only works on odd number of streams
-        const streams = [1];
-        const numberOfStreams = 5;
-        const streamAngle = 150;
-        const center = { x: this.width / 2, y: this.height / 2 };
-        this.time.addEvent({
-            delay: 2000,
-            callback: () => {
-                let streamPositions = [];
-
-                for (let i = -numberOfStreams / 2; i <= numberOfStreams / 2; i++) {
-                    streamPositions.push(
-                        {
-                            x: this.player.sprite().x + i * streamAngle,
-                            y: this.player.sprite().y
-                        });
-                }
-
-                streamPositions.forEach((pos) => {
-                    this.bullets.streamTowardPosition(center, pos);
-                });
-            },
-            loop: true,
-        });
-    }
-
-    streams() {
-        const center = { x: this.width / 2, y: this.height / 2 };
-        this.time.addEvent({
-            delay: 500,
-            callback: () => {
-                const playerPos = { x: this.player.sprite().x, y: this.player.sprite().y };
-                this.bullets.streamTowardPosition(center, playerPos, 1.5, 20)
-            },
-            loop: true,
-        });
     }
 
     update() {
-
-
-
-
-
     }
 
 }
@@ -145,7 +81,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true,
+            // debug: true,
         },
     },
     scene: Demo,

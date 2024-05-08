@@ -6,6 +6,7 @@ export default class Bullets {
         this.width = this.scene.width;
         this.height = this.scene.height;
         this.physics = this.scene.physics;
+        this.player = this.scene.player;
         this.bullets = this.scene.physics.add.group();
         this.enemyBullets = this.scene.physics.add.group();
 
@@ -17,7 +18,7 @@ export default class Bullets {
                 bullet.x += speed * Math.cos(direction);
                 bullet.y += speed * Math.sin(direction);
                 bullet.rotation = direction + Math.PI / 2;
-                
+
                 // if bullet goes off screen
                 if (bullet.y > this.height || bullet.y < 0 || bullet.x > this.width || bullet.x < 0) {
                     bullet.destroy();
@@ -160,18 +161,18 @@ export default class Bullets {
         }
     }
 
-    ringExpand() {
+    ringExpand(ang = 90) {
         const center = { x: this.width / 2, y: this.height / 2 };
 
         for (let i = 0; i < 5; i++) {
             this.time.addEvent({
-                delay: 150 * i,
+                delay: 120 * i,
                 callback: () => {
                     // create a ring of bullets expanding outwards
                     const radius = 100;
                     const numBullets = 15;
                     for (let i = 0; i < numBullets; i++) {
-                        const angle = (i / numBullets) * Math.PI * 2;
+                        const angle = (i / numBullets) * Math.PI * 2 + ang;
                         const xPos = center.x + radius * Math.cos(angle);
                         const yPos = center.y + radius * Math.sin(angle);
 
@@ -295,10 +296,93 @@ export default class Bullets {
         const hitboxSize = size / 2;
         this.physics.add.existing(bullet);
         bullet.body.setCircle(hitboxSize, -hitboxSize / 2, -hitboxSize / 2);
+        bullet.body.setOffset(0, 0);
         bullet.setStrokeStyle(2, strokeColor);
         bullet.direction = direction;
         this.enemyBullets.add(bullet);
 
+        // if player touches bullet
+        this.physics.add.overlap(this.player.sprite(), bullet, () => {
+            bullet.destroy();
+            this.player.takeDamage();
+        });
+
+
         return bullet;
+    }
+
+
+    streams() {
+        const center = { x: this.width / 2, y: this.height / 2 };
+        this.time.addEvent({
+            delay: 500,
+            callback: () => {
+                const playerPos = { x: this.player.sprite().x, y: this.player.sprite().y };
+                this.streamTowardPosition(center, playerPos, 1.5, 20)
+            },
+            loop: true,
+        });
+    }
+
+    attackStreams() {
+        // only works on odd number of streams
+        const numberOfStreams = 3;
+        const streamAngle = 150;
+        const center = { x: this.width / 2, y: this.height / 2 };
+        this.time.addEvent({
+            delay: 2000,
+            callback: () => {
+                let streamPositions = [];
+
+                for (let i = -numberOfStreams / 2; i <= numberOfStreams / 2; i++) {
+                    streamPositions.push(
+                        {
+                            x: this.player.sprite().x + i * streamAngle,
+                            y: this.player.sprite().y
+                        });
+                }
+
+                streamPositions.forEach((pos) => {
+                    this.streamTowardPosition(center, pos);
+                });
+            },
+            loop: true,
+        });
+    }
+
+    leftAndRightSpiral() {
+        // left and right rings
+        const leftCenter = { x: this.width / 3, y: this.height / 2 };
+        const rightCenter = { x: this.width * 2 / 3, y: this.height / 2 };
+        this.rotatingRing(leftCenter, 0.5, 3, 2, 1);
+        this.rotatingRing(rightCenter, 0.5, 3, 2, -1);
+    }
+
+    pattern1() {
+        // create a ring of bullets expanding outwards
+        const center = { x: this.width / 2, y: this.height / 2 };
+
+        for (let i = 0; i < 5; i++) {
+            this.time.addEvent({
+                delay: 900 * i,
+                callback: () => {
+                    // i want to create the bullet details in 
+                    // this time loop then shoot them out
+                    this.ringExpand(1);
+
+                    // const radius = 100;
+                    // const numBullets = 15;
+                    // for (let i = 0; i < numBullets; i++) {
+                    //     const angle = (i / numBullets) * Math.PI * 2;
+                    //     const xPos = center.x + radius * Math.cos(angle);
+                    //     const yPos = center.y + radius * Math.sin(angle);
+
+                    //     const bullet = this.create({ x: xPos, y: yPos }, angle, 2);
+                    //     bullet.speed = 2;
+                    //     bullet.direction = angle;
+                    // }
+                },
+            });
+        }
     }
 }
