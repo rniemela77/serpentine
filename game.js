@@ -11,12 +11,29 @@ class Demo extends Phaser.Scene {
     }
 
     /*
+          Make map something like 500px width.
+          Player starts at one side and needs to make it to the opposite.
+          The "longer" the player takes, the more points. They can weave
+          around bullets as carefully/slowly as they want to get more pts.
+
+          option 2:
+          there is a highlighted zone on the map. the player stays in that
+          zone and earns points. the zone moves around the map. the player
+          can move around the zone to avoid bullets and earn more points.
+
+          option 3:
+          big enemy at top of screen that needs to be attacked.
+
 
     */
 
     create() {
-        this.width = window.innerWidth * window.devicePixelRatio;
-        this.height = window.innerHeight * window.devicePixelRatio;
+        this.width = (window.innerWidth * window.devicePixelRatio) * 1;
+        this.height = (window.innerHeight * window.devicePixelRatio) * 1;
+
+        // return;
+        //create world bounds
+        
 
         this.start();
     }
@@ -29,8 +46,10 @@ class Demo extends Phaser.Scene {
         this.ui = new UI(this);
 
         // Camera
-        this.cameras.main.startFollow(this.player.sprite(), true, 0.05, 0, 0, 200);
+        this.cameras.main.startFollow(this.player.sprite(), true, 0.05, 0, 0, this.height / 6);
         this.cameras.main.setZoom(2);
+
+
 
         // Player Movement
         this.movement = new Movement(this);
@@ -44,8 +63,12 @@ class Demo extends Phaser.Scene {
 
         // this.bullets.createPatternA();
         // this.bullets.createPatternB();
-        // this.bullets.ringExpand();
-        this.bullets.pattern1();
+        // this.bullets.make().make2();
+
+        
+        // this.bullets.ringExpand(1);
+        // this.bullets.create().ringExpand(2);
+        // this.bullets.pattern1();
         
         
         // this.bullets.leftAndRightSpiral();
@@ -56,6 +79,14 @@ class Demo extends Phaser.Scene {
         this.player.startShooting();
         this.enemy.createEnemies();
 
+        // create bullet
+        // const r = this.bullets.create(undefined, undefined, 50);
+        // this.bullets.ringExpand(r, 10);
+
+        
+        // GOOD 
+        this.bullets.patternC();
+        this.bullets.patternD();
     }
 
     update() {

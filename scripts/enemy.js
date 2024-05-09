@@ -4,6 +4,7 @@ export default class Enemy {
         this.width = this.scene.width;
         this.height = this.scene.height;
         this.physics = this.scene.physics;
+        this.bullets = this.scene.bullets;
         this.player = this.scene.player;
 
         // create enemy
@@ -91,7 +92,7 @@ export default class Enemy {
         this.enemies = this.physics.add.group();
 
         const enemySize = 64;
-        
+
         this.scene.time.addEvent({
             delay: 300,
             callback: () => {
@@ -101,7 +102,7 @@ export default class Enemy {
                     enemySize,
                     enemySize,
                 ).setFillStyle(0x0000ff);
-                
+
                 this.physics.add.existing(enemy);
                 enemy.body.setCircle(enemySize / 2, 0, 0);
                 this.enemies.add(enemy);
@@ -117,10 +118,43 @@ export default class Enemy {
             },
             loop: true
         });
-        
+
+
+
+
+        // every 2 sec
+        this.scene.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.enemies.getChildren().forEach(enemy => {
+
+                    // shoot stream of bullets
+                    const options = {
+                        bulletStyle: {
+                            x: enemy.x,
+                            y: enemy.y,
+                            fillStyle: 0xff0000,
+                            size: 0.9,
+                            speed: 2.8,
+                        },
+                        posA: { x: enemy.x, y: enemy.y },
+                        posB: {
+                            x: this.player.sprite().x, y: this.player.sprite().y,
+                            numbBullets: 2,
+                            rate: 10
+                        }
+                    };
+
+                    this.bullets.sendLineToPosition(options);
+                })
+            },
+            loop: true
+        });
+
         // on update
         this.scene.events.on('update', () => {
             this.enemies.getChildren().forEach(enemy => {
+                if (enemy.y > this.height / 2 ) return enemy.y = this.height / 3;
                 enemy.y += 1;
             });
         });
