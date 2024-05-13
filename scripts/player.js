@@ -14,7 +14,7 @@ export default class Player {
         this.player.body.setCircle(8, 0, 0); // Adjust circle size and offset
         this.player.body.setOffset(8, 8); // Adjust circle size and offset
         player.setCollideWorldBounds(true); // Prevent player from going off-screen
-        player.setDragX(70); // Apply horizontal drag for gliding effect
+        player.setDragX(10); // Apply horizontal drag for gliding effect
 
         // create an oval svg
         const graphics = this.scene.add.graphics();
@@ -28,6 +28,7 @@ export default class Player {
 
 
 
+
         // on update
         this.scene.events.on('update', () => {
             graphics.x = player.x;
@@ -36,6 +37,7 @@ export default class Player {
             graphics.rotation = player.body.velocity.x / 200 + Math.PI / 2;
 
 
+            this.velocityX = player.body.velocity.x;
         });
     }
 
@@ -87,8 +89,41 @@ export default class Player {
     generateHeat() {
         // heat hitbox is a 50x30 square centered on the player
         const hitbox = this.physics.add.sprite(this.width / 2, this.height * 0.8, 'player');
-        hitbox.setDisplaySize(60, 30);
+        hitbox.setDisplaySize(90, 50);
         hitbox.setAlpha(0);
+
+        // give it a circle graphic
+        const graphics = this.scene.add.graphics();
+        graphics.fillStyle(0x5577ff, 0);
+        graphics.fillEllipse(0, 0, 90, 90);
+        graphics.lineStyle(2, 0x0000ff, 1)
+        graphics.strokeEllipse(0, 0, 90, 90);
+        graphics.setAlpha(0);
+        graphics.x = hitbox.x;
+        graphics.y = hitbox.y;
+
+
+
+
+
+        // if hitbox collides with any enemyBullet
+        //collide
+        this.physics.add.collider(hitbox, this.scene.bullets.enemyBullets, (player, bullet) => {
+            if (bullet?.heatable) {;
+                this.scene.ui.score += 1;
+            }
+            bullet.heatable = false;
+            this.scene.ui.score += 8;
+
+
+            graphics.setAlpha(1);
+            this.scene.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    graphics.setAlpha(0);
+                }
+            });
+        });
 
         
 
@@ -96,12 +131,8 @@ export default class Player {
         this.scene.events.on('update', () => {
             hitbox.x = this.player.x;
             hitbox.y = this.player.y;
-
-            // if hitbox is overlapping an enemy bullet
-            // destroy the bullet
-            this.scene.physics.overlap(hitbox, this.scene.bullets.enemyBullets, (player, bullet) => {
-                this.scene.ui.score += 8;
-            });
+            graphics.x = hitbox.x;
+            graphics.y = hitbox.y;
         });
 
 

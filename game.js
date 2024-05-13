@@ -10,7 +10,7 @@ class Demo extends Phaser.Scene {
         this.load.image('player', 'assets/player.png');
     }
 
-    /*
+    /*aquard
           Make map something like 500px width.
           Player starts at one side and needs to make it to the opposite.
           The "longer" the player takes, the more points. They can weave
@@ -30,10 +30,18 @@ class Demo extends Phaser.Scene {
     create() {
         this.width = (window.innerWidth * window.devicePixelRatio) * 1;
         this.height = (window.innerHeight * window.devicePixelRatio) * 1;
+        this.cameraWidth = this.width / 3;
+
+
+        // console.log('get width of map', this.width, this.height);
+
 
         // return;
         //create world bounds
-        
+
+        // screen wrap
+
+
 
         this.start();
     }
@@ -46,10 +54,12 @@ class Demo extends Phaser.Scene {
         this.ui = new UI(this);
 
         // Camera
-        this.cameras.main.startFollow(this.player.sprite(), true, 0.05, 0, 0, this.height / 6);
-        this.cameras.main.setZoom(2);
+        this.cameras.main.setBounds(0, 0, this.width, this.height);
+        this.cameras.main.startFollow(this.player.sprite(), true, 0.1, 0, 0, this.height / 6);
+        this.cameras.main.setZoom(1.5);
 
-
+        // World Bounds
+        this.physics.world.setBounds(0, 0, this.width, this.height);
 
         // Player Movement
         this.movement = new Movement(this);
@@ -64,13 +74,14 @@ class Demo extends Phaser.Scene {
         // this.bullets.createPatternA();
         // this.bullets.createPatternB();
         // this.bullets.make().make2();
+        // create a dot at the edge of gameworld
 
-        
+
         // this.bullets.ringExpand(1);
         // this.bullets.create().ringExpand(2);
         // this.bullets.pattern1();
-        
-        
+
+
         // this.bullets.leftAndRightSpiral();
         // this.bullets.streams();
         // this.bullets.attackStreams()
@@ -79,19 +90,66 @@ class Demo extends Phaser.Scene {
         this.player.startShooting();
         this.enemy.createEnemies();
 
+
         // create bullet
         // const r = this.bullets.create(undefined, undefined, 50);
         // this.bullets.ringExpand(r, 10);
 
-        
+
         // GOOD 
         this.bullets.patternC();
-        this.bullets.patternD();
-    }
+        // this.bullets.patternD();
 
-    update() {
-    }
 
+
+        // on update
+        this.events.on('update', () => {
+            let nonPlayerObjects = this.bullets.enemyBullets.getChildren()
+                .concat(this.enemy.enemies.getChildren())
+                .concat(this.enemy.enemyBullets.getChildren());
+
+
+            const playerIsMovingRight = this.player.velocityX > 0;
+            const playerIsMovingLeft = this.player.velocityX < 0;
+
+            const playerSpeed = this.player.velocityX / 50;
+
+            this.player.sprite().x = this.width / 2;
+
+            // console.log(playerSpeed)
+
+            if (playerIsMovingRight) {
+                nonPlayerObjects.forEach(obj => {
+                    // move left
+                    obj.x -= playerSpeed;
+                });
+            } else if (playerIsMovingLeft) {
+                nonPlayerObjects.forEach(obj => {
+                    obj.x -= playerSpeed;
+                });
+            }
+            this.bg.mapGrid.x -= playerSpeed;
+
+            // if bg is out of bounds, reset
+            if (this.bg.mapGrid.x >= this.width / 4) {
+                this.bg.mapGrid.x = 0;
+            } else if (this.bg.mapGrid.x <= 0) {
+                this.bg.mapGrid.x = this.width / 4;
+            }
+
+
+            nonPlayerObjects.forEach(obj => {
+                if (obj.x < 1) {
+                    obj.x = this.width - 10;
+                } else if (obj.x > this.width - 1) {
+                    obj.x = 10;
+                }
+            })
+
+            // camera lerp
+            this.cameras.main.scrollX -= 1;
+        });
+    }
 }
 
 

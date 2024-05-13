@@ -10,11 +10,41 @@ export default class Bullets {
         this.bullets = this.scene.physics.add.group();
         this.enemyBullets = this.scene.physics.add.group();
 
+        this.referencePoint = 0;
+
         this.center = { x: this.width / 2, y: this.height / 2 };
         this.left = { x: this.width / 3, y: this.height / 2 };
         this.right = { x: this.width * 2 / 3, y: this.height / 2 };
         // on update
         this.scene.events.on('update', () => {
+            // if player is moving
+            if (this.player.velocityX) {
+                this.referencePoint -= this.player.velocityX / 50;
+            }
+
+            
+            if (this.referencePoint > this.width) {
+                this.referencePoint = 0;
+            } else if (this.referencePoint < 0) {
+                this.referencePoint = this.width;
+            }
+
+            // right reference point is 0
+            // something wonky here. right refernece point jumps.
+            this.left = { x: this.referencePoint, y: this.height / 2 };
+            this.center = { x: this.referencePoint - this.width / 3, y: this.height / 2 };
+            this.right = { x: this.referencePoint + this.width / 3, y: this.height / 2 };
+
+            // put dots at center left right
+            if (this.c1) {
+                this.c1.destroy();
+                this.c2.destroy();
+                this.c3.destroy();
+            }
+            this.c2 = this.scene.add.ellipse(this.center.x, this.center.y, 30, 30, 0xffffff);
+            this.c1 = this.scene.add.ellipse(this.left.x, this.left.y, 20, 20, 0xff3333);
+            this.c3 = this.scene.add.ellipse(this.right.x, this.right.y, 10, 10, 0xff55555);
+
             //every bullet moves down
             this.enemyBullets.getChildren().forEach(bullet => {
                 const { speed, direction } = bullet;
@@ -22,8 +52,15 @@ export default class Bullets {
                 bullet.y += speed * Math.sin(direction);
                 bullet.rotation = direction + Math.PI / 2;
 
+                // bullet.y += 2;
+
+                // if bullet is not visible
+                if (bullet.x < 0 || bullet.x > this.width || bullet.y > this.height || bullet.y < 0) {
+                    bullet.destroy();
+                }
+
                 // if bullet goes off screen
-                if (bullet.y > this.height || bullet.y < 0 || bullet.x > this.width || bullet.x < 0) {
+                if (bullet.y > this.height || bullet.y < 0) {
                     bullet.destroy();
                 }
             });
@@ -259,8 +296,6 @@ export default class Bullets {
     sendLineToPosition(
         options
     ) {
-        return;
-        console.log('sending')
         let { bulletStyle, posA, posB, numBullets, rate } = options;
         posA = posA || { x: this.width / 2, y: this.height / 2 };
         posB = posB || { x: this.player.sprite().x, y: this.player.sprite().y };
@@ -283,21 +318,21 @@ export default class Bullets {
 
     patternC() {
         this.time.addEvent({
-            delay: 3000,
+            delay: 1000,
             callback: () => {
                 const options = {
                     bulletStyle: {
-                        x: this.width / 2,
-                        y: this.height / 2,
+                        x: 0,
+                        y: 0,
                         size: 2,
-                        speed: 0.9,
+                        speed: 3,
                     },
-                    rings: 5,
-                    pos: { x: this.width / 2, y: this.height / 2 },
+                    rings: 1,
+                    pos: this.right,
                     expand: false,
-                    numBullets: 3,
+                    numBullets: 8,
                     radius: 16,
-                    rate: 400,
+                    rate: 200,
                 }
 
                 // create a ring
@@ -317,8 +352,8 @@ export default class Bullets {
                 callback: () => {
                     const options = {
                         bulletStyle: {
-                            x: this.width / 2,
-                            y: this.height / 2,
+                            x: 0,
+                            y: 0,
                             size: 0.8,
                             speed: 2,
                         },
@@ -331,7 +366,7 @@ export default class Bullets {
                         // numBullets
                         numBullets: 3,
                         // rate
-                        rate: 100,
+                        rate: 200,
                     }
 
                     // create a ring
