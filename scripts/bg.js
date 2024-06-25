@@ -1,15 +1,12 @@
-
-
-
-// phaser js code for bullets
 export default class Background {
     constructor(scene) {
         this.scene = scene;
+        // return;
 
 
         // create a grid as the background
         const graphics = this.scene.add.graphics();
-        graphics.lineStyle(1, 0x333333, 0.3);
+        graphics.lineStyle(2, 0x333333, 0.3);
         const gridCells = 8;
         const gridWidth = scene.width / gridCells;
         const gridHeight = scene.height / gridCells;
@@ -22,9 +19,6 @@ export default class Background {
             graphics.lineTo(scene.width, i * gridHeight);
         }
 
-        // scale it larger
-        graphics.scaleX = 1.5;
-
         graphics.strokePath();
 
         this.mapGrid = graphics;
@@ -32,7 +26,7 @@ export default class Background {
         // on update
         this.scene.events.on('update', () => {
             // grid is constantly moving down
-            this.mapGrid.y += 5;
+            this.mapGrid.y += 3;
 
             if (this.mapGrid.y >= this.mapGridHeight) {
                 this.mapGrid.y = 0;

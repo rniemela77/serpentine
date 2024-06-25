@@ -41,6 +41,10 @@ class Demo extends Phaser.Scene {
 
         // screen wrap
 
+        // create dot at 1/3 of map
+        this.dot1 = this.add.circle(this.cameraWidth, this.height / 2, 5, 0x00ff00);
+        // create dot at 2/3 of map
+        this.dot2 = this.add.circle(this.cameraWidth * 2, this.height / 2, 5, 0xff0000);
 
 
         this.start();
@@ -88,7 +92,7 @@ class Demo extends Phaser.Scene {
         // this.bullets.createSpiral();
         // this.enemy.createEnemy();
         this.player.startShooting();
-        this.enemy.createEnemies();
+        // this.enemy.createEnemies();
 
 
         // create bullet
@@ -97,13 +101,26 @@ class Demo extends Phaser.Scene {
 
 
         // GOOD 
-        this.bullets.patternC();
+        // this.bullets.patternC();
         // this.bullets.patternD();
+
+        this.squares = [];
+        // const barrel = this.player.sprite().preFX.addBarrel();
+        const camera = this.cameras.main;
+        // camera.postFX.addBarrel(0.2, 1, 1, 1);
+        // make barrel lower
+        // camera.postFX.addPixelate(1);
+        // camera.postFX.addBokeh(0.1, 1, 0.2)
+
+        // camera.postFX.addTiltShift(0.1, 0.1, 0.1, 0.1);
 
 
 
         // on update
         this.events.on('update', () => {
+            this.player.x = this.width / 2;
+            this.player.sprite().x = this.width / 2;
+
             let nonPlayerObjects = this.bullets.enemyBullets.getChildren()
                 .concat(this.enemy.enemies.getChildren())
                 .concat(this.enemy.enemyBullets.getChildren());
@@ -114,40 +131,85 @@ class Demo extends Phaser.Scene {
 
             const playerSpeed = this.player.velocityX / 50;
 
-            this.player.sprite().x = this.width / 2;
 
-            // console.log(playerSpeed)
+            // if player is moving left
+            if (playerIsMovingLeft) {
+                // this.cameras.main.scrollX -= playerSpeed;
 
-            if (playerIsMovingRight) {
-                nonPlayerObjects.forEach(obj => {
-                    // move left
-                    obj.x -= playerSpeed;
-                });
-            } else if (playerIsMovingLeft) {
-                nonPlayerObjects.forEach(obj => {
-                    obj.x -= playerSpeed;
-                });
+            } else if (playerIsMovingRight) {
+                // this.cameras.main.scrollX += playerSpeed;
+
             }
+
+            this.cameras.main.scrollX += playerSpeed;
+
+
+
             this.bg.mapGrid.x -= playerSpeed;
+            this.dot1.x -= playerSpeed;
+            this.dot2.x -= playerSpeed;
 
-            // if bg is out of bounds, reset
-            if (this.bg.mapGrid.x >= this.width / 4) {
+            // should come from bg.js
+            const cellWidth = this.width / 8;
+            if (Math.random() > 0.9) {
+                // console.log(this.bg.mapGrid.x, this.width);
+            }
+            if (this.bg.mapGrid.x > cellWidth) {
                 this.bg.mapGrid.x = 0;
-            } else if (this.bg.mapGrid.x <= 0) {
-                this.bg.mapGrid.x = this.width / 4;
+            } else if (this.bg.mapGrid.x < 0) {
+                this.bg.mapGrid.x = cellWidth;
+            }
+
+            [this.dot1, this.dot2].forEach(dot => {
+                if (Math.random() > 0.9) {
+                }
+
+                if (dot.x <= 0) {
+                    // console.log('dot', dot.x, this.cameraWidth)
+                    dot.x = this.width;
+                } else if (dot.x >= this.width) {
+                    // console.log('dot', dot.x, this.cameraWidth)
+                    dot.x = 0;
+                }
+            });
+
+            if (Math.random() > 0.98) {
+                // create a square
+                const square = this.add.rectangle(Math.random() * this.width, this.height / 4, 100, 30, 0x99ccff);
+
+                this.physics.add.existing(square);
+
+                // set velocity Y
+                square.body.velocity.y = 100;
+
+                // if it touches player, destroy it
+                this.physics.add.overlap(this.player.sprite(), square, () => {
+                    square.destroy();
+                    this.squares = this.squares.filter(s => s !== square);
+                });
+
+                this.squares.push(square);
             }
 
 
-            nonPlayerObjects.forEach(obj => {
-                if (obj.x < 1) {
-                    obj.x = this.width - 10;
-                } else if (obj.x > this.width - 1) {
-                    obj.x = 10;
-                }
-            })
 
-            // camera lerp
-            this.cameras.main.scrollX -= 1;
+            if (this.squares.length) {
+                this.squares.forEach(square => {
+                    // change movement based on player movement
+                    square.body.velocity.x = -this.player.velocityX;
+
+                    if (square.y > this.height) {
+                        square.destroy();
+                        this.squares = this.squares.filter(s => s !== square);
+                    }
+
+                    if (square.x <= 0) {
+                        square.x = this.width;
+                    } else if (square.x >= this.width) {
+                        square.x = 0;
+                    }
+                });
+            }
         });
     }
 }

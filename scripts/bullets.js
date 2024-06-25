@@ -17,6 +17,7 @@ export default class Bullets {
         this.right = { x: this.width * 2 / 3, y: this.height / 2 };
         // on update
         this.scene.events.on('update', () => {
+            return;
             // if player is moving
             if (this.player.velocityX) {
                 this.referencePoint -= this.player.velocityX / 50;
